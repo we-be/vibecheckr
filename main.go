@@ -76,7 +76,7 @@ func calculateRank(app *pocketbase.PocketBase) error {
 			decayFactor := math.Pow(0.5, timeDiff.Hours()/(24*7))
 
 			// Calculate rank
-			rank := 1000 / votes * decayFactor
+			rank := 1000 / (1 + votes*decayFactor)
 			log.Printf("post with votes %.0f (@%s) is rank %.0f with %f decay", votes, createdTime, rank, decayFactor)
 
 			// Update post with new rank
