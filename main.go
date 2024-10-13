@@ -22,7 +22,7 @@ func main() {
 		scheduler := cron.New()
 
 		// Calculate rank every minute (for testing, change as needed)
-		scheduler.MustAdd("calculate-rank", "*/1 * * * *", func() {
+		scheduler.MustAdd("calculate-rank", "*/10 * * * *", func() {
 			if err := calculateRank(app); err != nil {
 				log.Printf("Error calculating rank: %v", err)
 			}
