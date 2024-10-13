@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"sort"
 	"time"
 
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/core"
+	"github.com/pocketbase/pocketbase/models"
 	"github.com/pocketbase/pocketbase/tools/cron"
 	"github.com/pocketbase/pocketbase/tools/types"
 )
@@ -19,7 +21,7 @@ func main() {
 	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
 		scheduler := cron.New()
 
-		// Calculate rank every hour
+		// Calculate rank every minute (for testing, change as needed)
 		scheduler.MustAdd("calculate-rank", "*/1 * * * *", func() {
 			if err := calculateRank(app); err != nil {
 				log.Printf("Error calculating rank: %v", err)
@@ -34,6 +36,11 @@ func main() {
 	if err := app.Start(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+type PostScore struct {
+	Post  *models.Record
+	Score float64
 }
 
 func calculateRank(app *pocketbase.PocketBase) error {
@@ -55,6 +62,8 @@ func calculateRank(app *pocketbase.PocketBase) error {
 			continue
 		}
 
+		var postScores []PostScore
+
 		for _, post := range posts {
 			votes, ok := post.Get("votes").(float64)
 			if !ok {
@@ -75,12 +84,27 @@ func calculateRank(app *pocketbase.PocketBase) error {
 			timeDiff := time.Since(createdTime)
 			decayFactor := math.Pow(0.5, timeDiff.Hours()/(24*7))
 
-			// Calculate rank
-			rank := 1000 / (1 + votes*decayFactor)
-			log.Printf("post with votes %.0f (@%s) is rank %.0f with %f decay", votes, createdTime, rank, decayFactor)
+			// Calculate score (higher is better)
+			score := votes * decayFactor
+
+			postScores = append(postScores, PostScore{Post: post, Score: score})
+		}
+
+		// Sort posts by score in descending order
+		sort.Slice(postScores, func(i, j int) bool {
+			return postScores[i].Score > postScores[j].Score
+		})
+
+		// Assign ranks
+		for rank, postScore := range postScores {
+			actualRank := rank + 1 // rank starts from 1
+			post := postScore.Post
+
+			log.Printf("Post %s: votes=%.0f, created=%s, score=%.2f, rank=%d",
+				post.Id, post.Get("votes"), post.Get("created"), postScore.Score, actualRank)
 
 			// Update post with new rank
-			post.Set("rank", rank)
+			post.Set("rank", actualRank)
 			if err := app.Dao().SaveRecord(post); err != nil {
 				log.Printf("Error updating rank for post %s: %v", post.Id, err)
 			}
