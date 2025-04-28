@@ -9,7 +9,44 @@ vibecheckr is the backend service for the VIBE CHUCK social media app. It provid
 - Image storage
 - Post management
 - Automated ranking of holiday decoration posts
-- Event management
+ - Event management
+
+## Entities
+
+The PocketBase backend defines the following collections (entities):
+
+- **users**
+  - Description: Built-in PocketBase authentication and user profiles collection.
+  - Fields:
+    - `id` (string): Unique identifier.
+    - `email` (string): User email address.
+    - `username` (string): Display name or username.
+    - `avatar` (file): Uploaded user avatar (optional).
+    - `created` (datetime): Record creation timestamp.
+    - `updated` (datetime): Record last update timestamp.
+
+- **events**
+  - Description: Holiday events that users can contribute posts to.
+  - Fields:
+    - `id` (string): Unique identifier.
+    - `displayName` (string): Name of the event (e.g., "Christmas 2024").
+    - `description` (text): Event description.
+    - `start` (datetime): Event start date.
+    - `end` (datetime): Event end date.
+    - `location` (string): Event location.
+
+- **posts**
+  - Description: User-submitted holiday decoration posts.
+  - Fields:
+    - `id` (string): Unique identifier.
+    - `title` (string): Title of the post.
+    - `description` (text): Decoration description.
+    - `imgs` (array of files): Uploaded image files.
+    - `rank` (integer): Current post ranking within the event (auto-calculated).
+    - `votes` (integer): Number of votes/likes received.
+    - `event` (relation): Reference to the parent event (`events` collection).
+    - `op` (relation): Reference to the original poster (`users` collection).
+    - `created` (datetime): Record creation timestamp.
 
 ## Getting Started
 
