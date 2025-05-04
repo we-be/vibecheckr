@@ -1,0 +1,30 @@
+version: 0.0
+os: linux
+
+files:
+  - source: /
+    destination: /opt/vibecheckr
+
+hooks:
+  BeforeInstall:
+    - location: scripts/stop_server.sh
+      timeout: 300
+      runas: ec2-user
+
+  AfterInstall:
+    - location: scripts/install_deps.sh
+      timeout: 300
+      runas: ec2-user
+    - location: scripts/build_server.sh
+      timeout: 300
+      runas: ec2-user
+
+  ApplicationStart:
+    - location: scripts/start_server.sh
+      timeout: 300
+      runas: ec2-user
+
+  ValidateService:
+    - location: scripts/health_check.sh
+      timeout: 60
+      runas: ec2-user
