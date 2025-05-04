@@ -13,6 +13,7 @@ import (
 	"github.com/pocketbase/pocketbase/tools/cron"
 
 	"github.com/we-be/vibecheckr/internal/rank"
+	_ "github.com/we-be/vibecheckr/migrations"
 )
 
 func main() {
