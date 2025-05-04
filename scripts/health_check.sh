@@ -4,7 +4,7 @@ set -eux
 # wait up to 30s for service
 timeout=30
 count=0
-while ! curl -sf http://localhost:8090/; do
+while ! curl -sf http://localhost:8090/api/health; do
   ((count++))
   if [ $count -ge $timeout ]; then
     echo "ERROR: vibecheckr failed to come up"
