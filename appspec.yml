@@ -10,6 +10,8 @@ hooks:
     - location: scripts/stop_server.sh
       timeout: 300
       runas: ec2-user
+    - location: scripts/prepare_appdir.sh
+      timeout: 300
 
   AfterInstall:
     - location: scripts/install_deps.sh
