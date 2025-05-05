@@ -13,3 +13,5 @@ vibecheckr
 
 # editor
 .ropeproject
+
+**/.claude/settings.local.json
